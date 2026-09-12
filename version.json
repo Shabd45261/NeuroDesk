@@ -1,6 +1,6 @@
 ﻿{
-  "version": "1.0.0",
-  "installer": "NeuroDeskSetup-1.0.0.exe",
-  "url": "https://github.com/Shabd45261/NeuroDesk/releases/download/v1.0.0/NeuroDeskSetup-1.0.0.exe",
-  "sha256": "73abd96eb26b78977ea90aa336716c363cb7dbfec3f994c7d500c3c728a61906"
+  "version": "1.0.1",
+  "installer": "NeuroDeskSetup-1.0.1.exe",
+  "url": "https://github.com/Shabd45261/NeuroDesk/releases/download/v1.0.1/NeuroDeskSetup-1.0.1.exe",
+  "sha256": "77b31d163601038f6a6621a5bf058b2612842d93d710da565de28c4e98d7844a"
 }
