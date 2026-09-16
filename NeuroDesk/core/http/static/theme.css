@@ -1,0 +1,197 @@
+/* NeuroDesk Theme - CSS Variables System */
+/* White primary, black secondary (monochrome). */
+
+/* Theme (Default) - White Primary / Black Secondary */
+:root,
+[data-theme="dark"],
+.dark {
+  /* Base Colors - White */
+  --color-bg-primary: #FFFFFF;        /* Main background */
+  --color-bg-secondary: #FAFAFA;      /* Elevated surfaces */
+  --color-bg-tertiary: #F4F4F4;       /* Cards, panels */
+  --color-bg-overlay: rgba(255, 255, 255, 0.95); /* Modals, overlays */
+
+  /* Override tw-elements dark background */
+  background-color: #FFFFFF !important;
+
+  /* Brand Colors - Black as primary */
+  --color-primary: #000000;          /* Black - primary actions */
+  --color-primary-hover: #1A1A1A;    /* Darker black on hover */
+  --color-primary-active: #333333;   /* Active state */
+  --color-primary-text: #FFFFFF;     /* Text on primary background */
+  --color-primary-light: rgba(0, 0, 0, 0.06); /* Light black backgrounds */
+  --color-primary-border: rgba(0, 0, 0, 0.25); /* Black borders */
+
+  --color-secondary: #333333;        /* Dark gray - secondary actions */
+  --color-secondary-hover: #1A1A1A;  /* Darker on hover */
+  --color-secondary-light: rgba(0, 0, 0, 0.08);
+
+  --color-accent: #000000;           /* Black - special states */
+  --color-accent-hover: #1A1A1A;     /* Darker on hover */
+  --color-accent-light: rgba(0, 0, 0, 0.06);
+
+  --color-accent-purple: #555555;    /* Neutral grays for gradients */
+  --color-accent-teal: #8A8A8A;      /* Neutral grays for gradients */
+
+  /* Text Colors */
+  --color-text-primary: #000000;      /* Primary text */
+  --color-text-secondary: #1F1F1F;   /* Secondary text */
+  --color-text-muted: #444444;        /* Tertiary text */
+  --color-text-disabled: #9E9E9E;     /* Disabled text */
+  --color-text-inverse: #FFFFFF;      /* Text on dark backgrounds */
+
+  /* Border Colors - Visible on white */
+  --color-border-subtle: #ECECEC;   /* Minimal borders */
+  --color-border-default: #D9D9D9;   /* Default borders */
+  --color-border-strong: #BFBFBF;    /* Focus borders */
+  --color-border-divider: #F0F0F0;   /* Section dividers */
+  --color-border-primary: rgba(0, 0, 0, 0.35);  /* Primary borders */
+  --color-border-secondary: #E5E5E5;
+  --color-border-focus: rgba(0, 0, 0, 0.5);     /* Focus borders */
+
+  /* Status Colors */
+  --color-success: #0A734F;
+  --color-success-light: rgba(10, 115, 79, 0.12);
+  --color-warning: #8A5D0B;
+  --color-warning-light: rgba(138, 93, 11, 0.12);
+  --color-error: #B3261E;
+  --color-error-light: rgba(179, 38, 30, 0.12);
+  --color-info: #000000;
+  --color-info-light: rgba(0, 0, 0, 0.06);
+
+  /* Gradient Definitions */
+  --gradient-primary: linear-gradient(135deg, #000000 0%, #333333 50%, #666666 100%);
+  --gradient-hero: linear-gradient(135deg, #FFFFFF 0%, #FAFAFA 50%, #FFFFFF 100%);
+  --gradient-card: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.02) 100%);
+  --gradient-text: linear-gradient(135deg, #000000 0%, #333333 50%, #666666 100%);
+
+  /* Shadows - Soft grays */
+  --shadow-none: none;
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 12px rgba(0, 0, 0, 0.08);
+  --shadow-sidebar: 1px 0 3px rgba(0, 0, 0, 0.08);
+
+  /* Animation Timing - Minimal */
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-normal: 200ms;
+  --duration-slow: 300ms;
+
+  /* Animation Easing */
+  --ease-default: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+  /* Spacing Scale (for reference, used via Tailwind) */
+  --spacing-xs: 0.25rem;    /* 4px */
+  --spacing-sm: 0.5rem;     /* 8px */
+  --spacing-md: 1rem;       /* 16px */
+  --spacing-lg: 1.5rem;     /* 24px */
+  --spacing-xl: 2rem;       /* 32px */
+  --spacing-2xl: 3rem;      /* 48px */
+  --spacing-3xl: 4rem;      /* 64px */
+
+  /* Border Radius */
+  --radius-none: 0;
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-full: 9999px;
+
+  /* Width System - Container Sizes */
+  --width-xs: 20rem;      /* 320px */
+  --width-sm: 24rem;      /* 384px */
+  --width-md: 28rem;      /* 448px */
+  --width-lg: 32rem;      /* 512px */
+  --width-xl: 36rem;      /* 576px */
+  --width-2xl: 42rem;     /* 672px */
+  --width-3xl: 48rem;     /* 768px */
+  --width-4xl: 56rem;     /* 896px */
+  --width-5xl: 64rem;     /* 1024px */
+  --width-6xl: 72rem;     /* 1152px */
+  --width-7xl: 80rem;     /* 1280px */
+
+  /* Sidebar */
+  --sidebar-width: 220px;
+  --sidebar-bg: var(--color-bg-primary);
+  --sidebar-border: var(--color-border-subtle);
+}
+
+/* Light Theme - identical to the default white/black theme */
+[data-theme="light"] {
+  /* Base Colors */
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #FAFAFA;
+  --color-bg-tertiary: #F4F4F4;
+  --color-bg-overlay: rgba(255, 255, 255, 0.95);
+
+  /* Brand Colors */
+  --color-primary: #000000;
+  --color-primary-hover: #1A1A1A;
+  --color-primary-active: #333333;
+  --color-primary-text: #FFFFFF;
+  --color-primary-light: rgba(0, 0, 0, 0.06);
+  --color-primary-border: rgba(0, 0, 0, 0.25);
+
+  --color-secondary: #333333;
+  --color-secondary-hover: #1A1A1A;
+  --color-secondary-light: rgba(0, 0, 0, 0.08);
+
+  --color-accent: #000000;
+  --color-accent-hover: #1A1A1A;
+  --color-accent-light: rgba(0, 0, 0, 0.06);
+
+  --color-accent-purple: #555555;
+  --color-accent-teal: #8A8A8A;
+
+  /* Text Colors */
+  --color-text-primary: #000000;
+  --color-text-secondary: #1F1F1F;
+  --color-text-muted: #444444;
+  --color-text-disabled: #9E9E9E;
+  --color-text-inverse: #FFFFFF;
+
+  /* Border Colors */
+  --color-border-subtle: #ECECEC;
+  --color-border-default: #D9D9D9;
+  --color-border-strong: #BFBFBF;
+  --color-border-divider: #F0F0F0;
+  --color-border-primary: rgba(0, 0, 0, 0.35);
+  --color-border-secondary: #E5E5E5;
+  --color-border-focus: rgba(0, 0, 0, 0.5);
+
+  /* Status Colors */
+  --color-success: #0A734F;
+  --color-success-light: rgba(10, 115, 79, 0.12);
+  --color-warning: #8A5D0B;
+  --color-warning-light: rgba(138, 93, 11, 0.12);
+  --color-error: #B3261E;
+  --color-error-light: rgba(179, 38, 30, 0.12);
+  --color-info: #000000;
+  --color-info-light: rgba(0, 0, 0, 0.06);
+
+  /* Gradient Definitions */
+  --gradient-primary: linear-gradient(135deg, #000000 0%, #333333 50%, #666666 100%);
+  --gradient-hero: linear-gradient(135deg, #FFFFFF 0%, #FAFAFA 50%, #FFFFFF 100%);
+  --gradient-card: linear-gradient(135deg, rgba(0, 0, 0, 0.02) 0%, rgba(0, 0, 0, 0.02) 100%);
+  --gradient-text: linear-gradient(135deg, #000000 0%, #333333 50%, #666666 100%);
+
+  /* Shadows */
+  --shadow-none: none;
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.08);
+  --shadow-glow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 0 12px rgba(0, 0, 0, 0.08);
+  --shadow-sidebar: 1px 0 3px rgba(0, 0, 0, 0.08);
+
+  /* Sidebar */
+  --sidebar-bg: #FFFFFF;
+  --sidebar-border: #ECECEC;
+}

@@ -1,0 +1,722 @@
+
++++
+disableToc = false
+title = "Model Gallery"
+weight = 81
+url = '/models'
++++
+
+The model gallery is a curated collection of models configurations for [NeuroDesk](https://github.com/mudler/NeuroDesk) that enables one-click install of models directly from the NeuroDesk Web interface.
+
+A list of the models available can also be browsed at [the Public NeuroDesk Gallery](https://models.localai.io).
+
+NeuroDesk to ease out installations of models provide a way to preload models on start and downloading and installing them in runtime. You can install models manually by copying them over the `models` directory, or use the API or the Web interface to configure, download and verify the model assets for you. 
+
+
+{{% notice note %}}
+The models in this gallery are not directly maintained by NeuroDesk. If you find a model that is not working, please open an issue on the [main NeuroDesk repository](https://github.com/mudler/NeuroDesk/issues).
+ {{% /notice %}}
+
+{{% notice note %}}
+GPT and text generation models might have a license which is not permissive for commercial use or might be questionable or without any license at all. Please check the model license before using it. The official gallery contains only open licensed models.
+ {{% /notice %}}
+
+![output](https://github.com/mudler/NeuroDesk/assets/2420543/7b16676e-d5b1-4c97-89bd-9fa5065c21ad)
+
+## Useful Links and resources
+
+- [Open LLM Leaderboard](https://huggingface.co/spaces/HuggingFaceH4/open_llm_leaderboard) - here you can find a list of the most performing models on the Open LLM benchmark. Keep in mind models compatible with NeuroDesk must be quantized in the `gguf` format.
+
+## How it works
+
+Open **Models** in the WebUI. It is the canonical page for a model's complete
+lifecycle and has two views:
+
+- **Explore** browses configured galleries, compares hardware fit and variants,
+  and installs models. This is the default view.
+- **Installed** lists local model configurations and their running, idle,
+  disabled, pinned, and distributed state. Select a model to load or stop it,
+  edit its configuration, open a supported use case, inspect backend logs, or
+  remove it.
+
+Both views use the same model selection and store the view, search, filter, and
+selection in the URL. Installing from Explore does not move you away from the
+catalog; the entry updates in place when the operation finishes.
+
+## VRAM and download size estimates
+
+When browsing the gallery or importing a model by URI, NeuroDesk can show **estimated download size** and **estimated VRAM** for models.
+
+- **Where they appear**: In the model gallery table (Size / VRAM column), in the model detail modal, and after starting an import from URI (in the success message).
+- **How they are computed**: GGUF models use file size (HTTP HEAD or local stat) and optional GGUF metadata (HTTP Range) for KV cache and overhead; other formats use Hugging Face file sizes and optional config when available. If metadata is unavailable, a size-only heuristic is used.
+- **Hardware fit indicator**: When your system reports GPU or RAM capacity, the gallery shows whether the estimated VRAM fits (green) or may not fit (red) using a 95% headroom rule.
+- Estimates are best-effort and may be missing if the server does not support HEAD/Range or the request times out.
+
+## Add other galleries
+
+You can add other galleries by:
+
+1. **Using the Web UI**: Navigate to the [Runtime Settings]({{%relref "features/runtime-settings#gallery-settings" %}}) page and configure galleries through the interface.
+
+2. **Using Environment Variables**: Set the `GALLERIES` environment variable. The `GALLERIES` environment variable is a list of JSON objects, where each object has a `name` and a `url` field. The `name` field is the name of the gallery, and the `url` field is the URL of the gallery's index file, for example:
+
+```json
+GALLERIES=[{"name":"<GALLERY_NAME>", "url":"<GALLERY_URL"}]
+```
+
+3. **Using Configuration Files**: Add galleries to `runtime_settings.json` in the `NEURODESK_CONFIG_DIR` directory.
+
+The models in the gallery will be automatically indexed and available for installation.
+
+## Gallery mirrors
+
+A gallery entry can declare a `mirrors` list of alternative locations for the same index file. Mirrors exist for availability, not for load balancing: NeuroDesk always prefers the `url`, and only falls back to the mirrors, in the order you listed them, when the one before it cannot be fetched. If the primary works, the mirrors are never contacted.
+
+Mirrors accept any URI the gallery loader understands — `https://`, `github:`, `huggingface://` (also `hf://` and `hf.co/`), and `file://` — and the same rules apply to them as to a primary URL, so a `file://` mirror must still live inside your models directory.
+
+```json
+GALLERIES=[{"name":"neurodesk", "url":"https://example.org/gallery/index.yaml", "mirrors":["github:mudler/NeuroDesk/gallery/index.yaml@master"]}]
+```
+
+Each attempt is bounded by a 120 second timeout, and a source that fails — a connection error, a timeout, or an HTTP error status such as 404 or 502 — is skipped for the next 10 minutes so a dead host is not re-dialled on every gallery listing. A source that answers is usable again immediately, and a request you cancel yourself is not counted against it. If every source happens to be inside that 10 minute window, NeuroDesk tries them all anyway rather than refuse to serve the gallery.
+
+{{% notice warning %}}
+**Neither mirrors nor the offline cache cover a `.ref` URL.** If a gallery's `url` ends in `.ref`, that reference file is fetched and resolved to the real index location *before* mirrors or the cached copy are consulted, and a failure to fetch it fails the gallery outright. That includes the offline case: a `.ref` gallery fails when the network is gone even if it has been fetched successfully before. Mirrors are alternates for the index, not for the reference that points at it. If you want mirror coverage or offline listings, point `url` directly at the index file.
+{{% /notice %}}
+
+The key is optional: a gallery without `mirrors` behaves exactly as before.
+
+## Offline gallery listings
+
+Every successful gallery fetch is written to a cache directory alongside your models directory (`<MODELS_PATH>/../cache/gallery/`), one file per gallery URL. If nothing can serve the index — the primary and every mirror failed, there is no network at all, the host is airgapped — NeuroDesk serves that last successfully fetched copy instead of failing the listing, and logs a warning saying it did so. This applies to every gallery whose `url` points directly at an index file, with or without `mirrors` — but not to a `.ref` URL, which is resolved before the cache is consulted (see the warning above).
+
+Only a response that actually parses as a gallery index is stored. A captive portal, a proxy or a CDN can answer an index request with HTTP 200 and an HTML error page; caching that would replace a working offline copy with something no listing can read. An empty index is rejected for the same reason, so the previous copy survives.
+
+Entries served this way may be stale: the copy is only as fresh as the last time the gallery could be reached, so models added or changed upstream since then will not show up, and an entry may point at a file that has since moved. A listing served from disk is a degraded mode, not a substitute for a reachable gallery.
+
+The copy is deliberately kept out of the models directory itself, where NeuroDesk reads a `.yaml` file as an installed model's configuration. Deleting the cache directory is safe — the next successful fetch recreates it — and a machine that has never reached a gallery has nothing cached, so its first listing still fails.
+
+## API Reference
+
+### Model repositories
+
+You can install a model in runtime, while the API is running and it is started already, or before starting the API by preloading the models.
+
+To install a model in runtime you will need to use the `/models/apply` NeuroDesk API endpoint.
+
+By default NeuroDesk is configured with the `neurodesk` repository.
+
+To use additional repositories you need to start `neurodesk` with the `GALLERIES` environment variable:
+
+```
+GALLERIES=[{"name":"<GALLERY_NAME>", "url":"<GALLERY_URL"}]
+```
+
+For example, to spell out the default `neurodesk` repository, you can start `neurodesk` with:
+
+```
+GALLERIES=[{"name":"neurodesk", "url":"https://index.localai.io/models", "mirrors":["github:mudler/NeuroDesk/gallery/index.yaml@master"]}]
+```
+
+`https://index.localai.io/models` is a caching mirror of the same index file, and the `github:` entry is the fallback used whenever it cannot be reached. `github:mudler/NeuroDesk/gallery/index.yaml@master` is expanded automatically to `https://raw.githubusercontent.com/mudler/NeuroDesk/master/gallery/index.yaml`.
+
+Note: the url are expanded automatically for `github` and `huggingface`, however `https://` and `http://` prefix works as well.
+
+#### Using Local Gallery Files
+
+You can also use local gallery index files by using the `file://` prefix. For security reasons, **local gallery files must be located within your models directory** (the directory specified by `MODELS_PATH` or the default `models/` directory).
+
+**Example:**
+
+```json
+GALLERIES=[{"name":"my-local-gallery", "url":"file:///path/to/models/my-gallery-index.yaml"}]
+```
+
+**Important notes:**
+- The `file://` prefix is required for local paths
+- The file path must be absolute (starting with `/` on Unix systems)
+- The resolved path must be within your models directory for security
+- If you try to access files outside the models directory, NeuroDesk will block the request
+
+**Valid example** (assuming `MODELS_PATH=/opt/neurodesk/models`):
+```json
+GALLERIES=[{"name":"local", "url":"file:///opt/neurodesk/models/galleries/my-gallery.yaml"}]
+```
+
+**Invalid example** (file outside models directory):
+```json
+GALLERIES=[{"name":"local", "url":"file:///home/user/my-gallery.yaml"}]
+```
+This will be rejected with a security error.
+
+{{% notice note %}}
+
+If you want to build your own gallery, there is no documentation yet. However you can find the source of the default gallery in the [NeuroDesk repository](https://github.com/mudler/NeuroDesk/tree/master/gallery).
+ {{% /notice %}}
+
+
+### List Models
+
+To list all the available models, use the `/models/available` endpoint:
+
+```bash
+curl http://localhost:8080/models/available
+```
+
+To search for a model, you can use `jq`:
+
+```bash
+curl http://localhost:8080/models/available | jq '.[] | select(.name | contains("replit"))'
+
+curl http://localhost:8080/models/available | jq '.[] | .name | select(contains("localmodels"))'
+
+curl http://localhost:8080/models/available | jq '.[] | .urls | select(. != null) | add | select(contains("orca"))'
+```
+
+### How to install a model from the repositories
+
+Models can be installed by passing the full URL of the YAML config file, or either an identifier of the model in the gallery. The gallery is a repository of models that can be installed by passing the model name.
+
+To install a model from the gallery repository, you can pass the model name in the `id` field. For instance, to install the `bert-embeddings` model, you can use the following command:
+
+```bash
+NEURODESK=http://localhost:8080
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "id": "neurodesk@bert-embeddings"
+   }'  
+```
+
+where:
+- `neurodesk` is the repository. It is optional and can be omitted. If the repository is omitted NeuroDesk will search the model by name in all the repositories. In the case the same model name is present in both galleries the first match wins.
+- `bert-embeddings` is the model name in the gallery
+  (read its [config here](https://github.com/mudler/NeuroDesk/tree/master/gallery/blob/main/bert-embeddings.yaml)).
+
+### Model variants
+
+Some gallery entries offer several builds of the same model: different
+quantizations, or the same weights served by a different engine. Such an entry
+carries a `variants` list, and installing it normally lets NeuroDesk choose:
+
+- variants whose backend cannot run on this machine are dropped;
+- variants that do not fit the available memory are dropped. That budget is
+  VRAM on a discrete-GPU host, and system RAM otherwise — including on
+  unified-memory machines such as Apple Silicon, where the GPU shares system
+  RAM and reports no separate VRAM pool;
+- the entry's own build is never dropped. It competes with whatever survived
+  rather than waiting for everything else to fail, so an entry that is itself
+  the largest build that fits keeps its own payload;
+- among the remaining builds the engine this machine prefers wins first: a vLLM
+  build on an NVIDIA or AMD host, an MLX build on Apple Silicon, llama.cpp
+  otherwise. The native accelerated runtime is worth more than a bigger
+  download, so preference is settled before size;
+- the largest build on the preferred engine then wins, because a bigger
+  footprint means a higher quality build of the same model. A machine with no
+  preferred engine picks purely by size;
+- a build whose size could not be measured ranks below the entry's own build,
+  so an unreadable size never quietly displaces the payload the entry ships;
+- if nothing else survives, the entry's own build is installed. The entry is
+  always installable, on any machine.
+
+Because the entry's own build competes like every other candidate, the order of
+the list means nothing and a `variants` list may offer smaller builds, larger
+ones, or both.
+
+Sizes are measured from the model's weights rather than downloaded, and cached.
+
+The gallery listing only flags which entries offer variants, with a
+`has_variants` field. It deliberately does not describe them: measuring a
+variant is a network round trip per referenced build, so describing every
+entry inline would make one listing request cost as many round trips as the
+whole page has variants.
+
+```bash
+curl http://localhost:8080/api/models | jq '.models[] | select(.has_variants) | .name'
+```
+
+### Collapsing the listing to one row per model
+
+By default the listing returns every entry, including the individual builds a
+parent entry offers as variants, so one model can occupy several rows. Pass
+`collapse_variants=true` for the deduplicated view: every entry that is
+installable in its own right, with nothing shown twice.
+
+```bash
+curl 'http://localhost:8080/api/models?collapse_variants=true'
+```
+
+An entry is hidden only when another entry already offers it as a variant, so
+it stays reachable by installing that entry. Entries that declare variants are
+always kept, and so is any entry nobody references. The filter is applied
+before pagination, so page counts stay correct.
+
+**Searching respects the collapse.** `term` is matched against every entry the
+gallery holds, builds another entry offers included, so nothing becomes
+unfindable. The collapse then decides how a match is reported: a hit on a build
+another entry offers comes back as that entry, since that is the row installable
+in its own right. Looking a model up by name must not answer "not found" for an
+entry the gallery holds, and must not answer with a row the requested view has
+no place for either. A term that is empty or only whitespace does not count as a
+search:
+
+```bash
+# Collapsed: the parent stands in for the build it offers.
+curl 'http://localhost:8080/api/models?collapse_variants=true'
+# Collapsed, searching a build the parent offers: the parent comes back.
+curl 'http://localhost:8080/api/models?collapse_variants=true&term=nanbeige4.1-3b-q8'
+# Uncollapsed, same term: the build itself comes back.
+curl 'http://localhost:8080/api/models?term=nanbeige4.1-3b-q8'
+```
+
+A parent appears once however many of its builds match, and once when it matches
+in its own right as well. The substitution runs before the count and the page
+math, so both describe the rows actually handed out.
+
+`term`, `tag` and `backend` are all applied before the substitution, so each is
+judged against the build that really carries the name, tag or backend rather
+than against a parent that merely offers it. The consequence is worth knowing:
+filtering by a backend only one variant declares returns that variant's parent,
+whose own `backend` field may say something else. The alternative would be to
+claim the gallery holds no such build.
+
+The web UI requests the collapsed view by default and has a toggle for the other
+one. The parameter stays on the API, off by default, for clients that want
+either view.
+
+Ask for the description one entry at a time, as the web UI does when you open
+a model's variant menu:
+
+```bash
+curl http://localhost:8080/api/models/variants/neurodesk@nanbeige4.1-3b-q4
+```
+
+```json
+{
+  "auto_selected": "nanbeige4.1-3b-q8",
+  "variants": [
+    { "model": "nanbeige4.1-3b-q8", "backend": "llama-cpp", "memory_bytes": 4187593113, "fits": true, "is_base": false },
+    { "model": "nanbeige4.1-3b-q4", "backend": "llama-cpp", "fits": true, "is_base": true }
+  ]
+}
+```
+
+`auto_selected` is what installing without a choice would pick right now. `fits`
+is whether auto-selection would consider that variant on this machine, and
+`is_base` marks the entry's own build. `memory_bytes` is omitted entirely, as on
+the second entry above, when the size could not be measured; read a missing
+`memory_bytes` as unknown rather than as a free build.
+
+An entry that declares no variants carries no `has_variants` field and answers
+this endpoint with an empty list, so a client never has to ask about it.
+
+To install a specific one, pass its name as `variant`:
+
+```bash
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "id": "neurodesk@nanbeige4.1-3b-q4",
+     "variant": "nanbeige4.1-3b-q8"
+   }'
+```
+
+An explicit choice is honored even when the machine looks too small for it, so
+you can deliberately install a build NeuroDesk would not have picked. A `variant`
+the entry does not declare fails the install and names what was requested; it
+never quietly falls back to auto-selection. The choice is recorded, so a later
+reinstall or upgrade of the same model stays on the variant you picked.
+
+The same option exists on the CLI:
+
+```bash
+neurodesk models install nanbeige4.1-3b-q4 --variant nanbeige4.1-3b-q8
+```
+
+The `install_model` MCP tool takes the same `variant` argument, so an assistant
+managing installs conversationally can pick a build too.
+
+Entries without a `variants` list are unaffected by any of this and install
+exactly as they always have.
+
+### Artifact-backed models
+
+Gallery models with an `artifacts` declaration are fully materialized during
+installation. Their operation progresses through these phases:
+
+```text
+resolving -> downloading -> verifying -> committing -> persisting
+```
+
+The admin operations strip, the [Activity]({{% relref "operations/activity" %}})
+page and `GET /api/operations` expose `currentBytes` and `totalBytes` as raw
+transport bytes. Cancelling an active download leaves its partial files in
+place so a retry can resume. A verification failure never
+exposes a completed snapshot, while a retry or another installation reuses an
+already verified content-addressed snapshot.
+
+Deleting a model configuration does not delete its content-addressed snapshot
+bytes. This allows another configuration or a later reinstall to reuse the
+cache; safe cache garbage collection is deferred.
+
+### How to install a model not part of a gallery
+
+If you don't want to set any gallery repository, you can still install models by loading a model configuration file.
+
+In the body of the request you must specify the model configuration file URL (`url`), optionally a name to install the model (`name`), extra files to install (`files`), and configuration overrides (`overrides`). When calling the API endpoint, NeuroDesk will download the models files and write the configuration to the folder used to store models.
+
+```bash
+NEURODESK=http://localhost:8080
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "config_url": "<MODEL_CONFIG_FILE_URL>"
+   }' 
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "id": "<GALLERY>@<MODEL_NAME>"
+   }' 
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "url": "<MODEL_CONFIG_FILE_URL>"
+   }' 
+```
+
+An example that installs hermes-2-pro-mistral can be:
+   
+```bash
+NEURODESK=http://localhost:8080
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "config_url": "https://raw.githubusercontent.com/mudler/NeuroDesk/v2.25.0/embedded/models/hermes-2-pro-mistral.yaml"
+   }' 
+```
+
+The API will return a job `uuid` that you can use to track the job progress:
+```
+{"uuid":"1059474d-f4f9-11ed-8d99-c4cbe106d571","status":"http://localhost:8080/models/jobs/1059474d-f4f9-11ed-8d99-c4cbe106d571"}
+```
+
+For instance, a small example bash script that waits a job to complete can be (requires `jq`):
+
+```bash
+response=$(curl -s http://localhost:8080/models/apply -H "Content-Type: application/json" -d '{"url": "$model_url"}')
+
+job_id=$(echo "$response" | jq -r '.uuid')
+
+while [ "$(curl -s http://localhost:8080/models/jobs/"$job_id" | jq -r '.processed')" != "true" ]; do 
+  sleep 1
+done
+
+echo "Job completed"
+```
+
+To preload models on start instead you can use the `PRELOAD_MODELS` environment variable.
+
+<details>
+
+To preload models on start, use the `PRELOAD_MODELS` environment variable by setting it to a JSON array of model uri:
+
+```bash
+PRELOAD_MODELS='[{"url": "<MODEL_URL>"}]'
+```
+
+The value must be a JSON array. Boolean values such as `true` are not valid model preload configurations.
+
+Note: `url` or `id` must be specified. `url` is used to a url to a model gallery configuration, while an `id` is used to refer to models inside repositories. If both are specified, the `id` will be used.
+
+For example:
+
+```bash
+PRELOAD_MODELS=[{"url": "github:mudler/NeuroDesk/gallery/stablediffusion.yaml@master"}]
+```
+
+or as arg:
+
+```bash
+neurodesk --preload-models '[{"url": "github:mudler/NeuroDesk/gallery/stablediffusion.yaml@master"}]'
+```
+
+or in a YAML file:
+
+```bash
+neurodesk --preload-models-config "/path/to/yaml"
+```
+
+YAML:
+```yaml
+- url: github:mudler/NeuroDesk/gallery/stablediffusion.yaml@master
+```
+
+</details>
+
+{{% notice note %}}
+
+You can find already some open licensed models in the [NeuroDesk gallery](https://github.com/mudler/NeuroDesk/tree/master/gallery).
+
+If you don't find the model in the gallery you can try to use the "base" model and provide an URL to NeuroDesk:
+
+<details>
+
+```
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "url": "github:mudler/NeuroDesk/gallery/base.yaml@master",
+     "name": "model-name",
+     "files": [
+        {
+            "uri": "<URL>",
+            "sha256": "<SHA>",
+            "filename": "model"
+        }
+     ]
+   }'
+```
+
+</details>
+
+ {{% /notice %}}
+
+### Override a model name
+
+To install a model with a different name, specify a `name` parameter in the request body.
+
+```bash
+NEURODESK=http://localhost:8080
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "url": "<MODEL_CONFIG_FILE>",
+     "name": "<MODEL_NAME>"
+   }'  
+```
+
+For example, to install a model as `gpt-3.5-turbo`:
+   
+```bash
+NEURODESK=http://localhost:8080
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+      "url": "github:mudler/NeuroDesk/gallery/gpt4all-j.yaml",
+      "name": "gpt-3.5-turbo"
+   }'  
+```
+### Additional Files
+
+<details>
+
+To download additional files with the model, use the `files` parameter:
+
+```bash
+NEURODESK=http://localhost:8080
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "url": "<MODEL_CONFIG_FILE>",
+     "name": "<MODEL_NAME>",
+     "files": [
+        {
+            "uri": "<additional_file_url>",
+            "sha256": "<additional_file_hash>",
+            "filename": "<additional_file_name>"
+        }
+     ]
+   }'  
+```
+
+</details>
+
+### Overriding configuration files
+
+<details>
+
+To override portions of the configuration file, such as the backend or the model file, use the `overrides` parameter:
+
+```bash
+NEURODESK=http://localhost:8080
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "url": "<MODEL_CONFIG_FILE>",
+     "name": "<MODEL_NAME>",
+     "overrides": {
+        "backend": "llama",
+        "f16": true,
+        ...
+     }
+   }'  
+```
+
+</details>
+
+
+
+## Examples
+
+### Embeddings: Bert
+
+<details>
+
+```bash
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{
+     "id": "bert-embeddings",
+     "name": "text-embedding-ada-002"
+   }'  
+```
+
+To test it:
+
+```bash
+NEURODESK=http://localhost:8080
+curl $NEURODESK/v1/embeddings -H "Content-Type: application/json" -d '{
+    "input": "Test",
+    "model": "text-embedding-ada-002"
+  }'
+```
+
+</details>
+
+### Image generation: Stable diffusion
+
+URL: https://github.com/EdVince/Stable-Diffusion-NCNN
+
+{{< tabs >}}
+{{% tab name="Prepare the model in runtime" %}}
+
+While the API is running, you can install the model by using the `/models/apply` endpoint and point it to the `stablediffusion` model in the [models-gallery](https://github.com/mudler/NeuroDesk/tree/master/gallery#image-generation-stable-diffusion):
+```bash
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{         
+     "url": "github:mudler/NeuroDesk/gallery/stablediffusion.yaml@master"
+   }'
+```
+
+{{% /tab %}}
+{{% tab name="Automatically prepare the model before start" %}}
+
+You can set the `PRELOAD_MODELS` environment variable:
+
+```bash
+PRELOAD_MODELS=[{"url": "github:mudler/NeuroDesk/gallery/stablediffusion.yaml@master"}]
+```
+
+or as arg:
+
+```bash
+neurodesk --preload-models '[{"url": "github:mudler/NeuroDesk/gallery/stablediffusion.yaml@master"}]'
+```
+
+or in a YAML file:
+
+```bash
+neurodesk --preload-models-config "/path/to/yaml"
+```
+
+YAML:
+```yaml
+- url: github:mudler/NeuroDesk/gallery/stablediffusion.yaml@master
+```
+
+{{% /tab %}}
+{{< /tabs >}}
+
+Test it:
+
+```
+curl $NEURODESK/v1/images/generations -H "Content-Type: application/json" -d '{
+            "prompt": "floating hair, portrait, ((loli)), ((one girl)), cute face, hidden hands, asymmetrical bangs, beautiful detailed eyes, eye shadow, hair ornament, ribbons, bowties, buttons, pleated skirt, (((masterpiece))), ((best quality)), colorful|((part of the head)), ((((mutated hands and fingers)))), deformed, blurry, bad anatomy, disfigured, poorly drawn face, mutation, mutated, extra limb, ugly, poorly drawn hands, missing limb, blurry, floating limbs, disconnected limbs, malformed hands, blur, out of focus, long neck, long body, Octane renderer, lowres, bad anatomy, bad hands, text",
+            "mode": 2,  "seed":9000,
+            "size": "256x256", "n":2
+}'
+```
+
+### Audio transcription: Whisper
+
+URL: https://github.com/ggerganov/whisper.cpp
+
+{{< tabs >}}
+{{% tab name="Prepare the model in runtime" %}}
+
+```bash
+curl $NEURODESK/models/apply -H "Content-Type: application/json" -d '{         
+     "url": "github:mudler/NeuroDesk/gallery/whisper-base.yaml@master",
+     "name": "whisper-1"
+   }'
+```
+
+{{% /tab %}}
+{{% tab name="Automatically prepare the model before start" %}}
+
+You can set the `PRELOAD_MODELS` environment variable:
+
+```bash
+PRELOAD_MODELS=[{"url": "github:mudler/NeuroDesk/gallery/whisper-base.yaml@master", "name": "whisper-1"}]
+```
+
+or as arg:
+
+```bash
+neurodesk --preload-models '[{"url": "github:mudler/NeuroDesk/gallery/whisper-base.yaml@master", "name": "whisper-1"}]'
+```
+
+or in a YAML file:
+
+```bash
+neurodesk --preload-models-config "/path/to/yaml"
+```
+
+YAML:
+```yaml
+- url: github:mudler/NeuroDesk/gallery/whisper-base.yaml@master
+  name: whisper-1
+```
+
+{{% /tab %}}
+{{< /tabs >}}
+
+### Note
+
+NeuroDesk will create a batch process that downloads the required files from a model definition and automatically reload itself to include the new model. 
+
+Input: `url` or `id` (required), `name` (optional), `files` (optional)
+
+```bash
+curl http://localhost:8080/models/apply -H "Content-Type: application/json" -d '{
+     "url": "<MODEL_DEFINITION_URL>",
+     "id": "<GALLERY>@<MODEL_NAME>",
+     "name": "<INSTALLED_MODEL_NAME>",
+     "files": [
+        {
+            "uri": "<additional_file>",
+            "sha256": "<additional_file_hash>",
+            "filename": "<additional_file_name>"
+        },
+      "overrides": { "backend": "...", "f16": true }
+     ]
+   }
+```
+
+An optional, list of additional files can be specified to be downloaded within `files`. The `name` allows to override the model name. Finally it is possible to override the model config file with `override`.
+
+The `url` is a full URL, or a github url (`github:org/repo/file.yaml`), or a local file (`file:///path/to/file.yaml`). 
+
+{{% notice warning %}}
+**Local file security restriction:** When using `file://` URLs, the file path must be within your models directory (specified by `MODELS_PATH`). Files outside this directory will be rejected for security reasons.
+{{% /notice %}}
+
+The `id` is a string in the form `<GALLERY>@<MODEL_NAME>`, where `<GALLERY>` is the name of the gallery, and `<MODEL_NAME>` is the name of the model in the gallery. Galleries can be specified during startup with the `GALLERIES` environment variable.
+
+Returns an `uuid` and an `url` to follow up the state of the process:
+
+```json
+{ "uuid":"251475c9-f666-11ed-95e0-9a8a4480ac58", "status":"http://localhost:8080/models/jobs/251475c9-f666-11ed-95e0-9a8a4480ac58"}
+```
+
+To see a collection example of curated models definition files, see the [NeuroDesk repository](https://github.com/mudler/NeuroDesk/tree/master/gallery).
+
+#### Get model job state `/models/jobs/<uid>`
+
+This endpoint returns the state of the batch job associated to a model installation.
+
+```bash
+curl http://localhost:8080/models/jobs/<JOB_ID>
+```
+
+Returns a json containing the error, and if the job is being processed:
+
+```json
+{"error":null,"processed":true,"message":"completed"}
+```
+
+Installations are processed one at a time. A job submitted while another install
+is still running is reported as queued until the installer picks it up:
+
+```json
+{"error":null,"processed":false,"message":"queued","phase":"queued"}
+```
+
+A job ID is queryable from the moment `/models/apply` returns it, so a `404`/`500`
+from this endpoint means the ID is genuinely unknown rather than merely waiting
+its turn.

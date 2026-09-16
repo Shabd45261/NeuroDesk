@@ -1,0 +1,35 @@
+# IDE / project-local
+.idea/
+
+# Installer toolchain (InnoSetup)
+Toolkit/
+
+# Runtime state, caches, temp, empty scaffolds
+backends/
+cache/
+configuration/
+data/
+go-cache/
+models/
+tmp/
+
+# Dependencies & build output (any depth)
+node_modules/
+dist/
+*.exe
+*.dll
+*.a
+*.o
+*.obj
+*.pdb
+*.map
+*.pak
+
+# Prebuilt server binaries (named)
+/NeuroDesk/neurodesk-linux-amd64
+
+# Local media & misc files
+/Video-Sample.mp4
+/WhatsApp Image 2026-09-15 at 8.23.01 PM.jpeg
+/BEE_Assignment1_Answers.pdf
+/s1h 117.pptx

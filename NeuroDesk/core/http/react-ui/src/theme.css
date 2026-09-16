@@ -1,0 +1,282 @@
+/* NeuroDesk Theme — white primary / black secondary (monochrome).
+   Reworked from the localai.io palette: the ground is now white and every
+   action, accent and primary text is black. Status colors stay minimal and
+   legible on both grounds.
+   "light" is the default (:root): white ground, black accents. "dark"
+   inverts the same monochrome brand — black ground, white accents — so the
+   toggle changes the look instead of shipping one fixed theme. */
+:root {
+  color-scheme: light;
+
+  /* Surfaces — white ground */
+  --color-bg-primary: #ffffff;          /* page */
+  --color-bg-secondary: #fafafa;        /* sidebar, headers, cards */
+  --color-bg-tertiary: #f2f2f2;         /* wells / sunken rows */
+  --color-bg-overlay: rgba(255, 255, 255, 0.92);
+  --color-bg-hover: #f2f2f2;
+
+  --color-surface-raised: #ffffff;
+  --color-surface-sunken: #f7f7f7;
+  --color-surface-hover: #ededed;
+  --color-surface-elevated: #e5e5e5;
+
+  /* Primary — black. Everything that routes or commits. White label text. */
+  --color-primary: #000000;
+  --color-primary-hover: #1a1a1a;
+  --color-primary-active: #333333;
+  --color-primary-text: #ffffff;
+  --color-primary-light: rgba(0, 0, 0, 0.06);
+  --color-primary-border: rgba(0, 0, 0, 0.25);
+
+  --color-secondary: #333333;
+  --color-secondary-hover: #1a1a1a;
+  --color-secondary-light: rgba(0, 0, 0, 0.08);
+
+  /* Accent alias — black is the brand accent */
+  --color-accent: #000000;
+  --color-accent-hover: #1a1a1a;
+  --color-accent-light: rgba(0, 0, 0, 0.06);
+  --color-accent-border: rgba(0, 0, 0, 0.2);
+  --color-on-accent: #ffffff;           /* label text on accent surfaces */
+
+  /* Text — black scale on paper */
+  --color-text-primary: #000000;
+  --color-text-secondary: #1f1f1f;
+  --color-text-muted: #444444;
+  --color-text-tertiary: #5c5c5c;        /* dimmer than muted, metadata */
+  --color-text-disabled: #9e9e9e;
+  --color-text-inverse: #ffffff;
+
+  /* Borders — cool gray hairlines */
+  --color-border-subtle: #ececec;
+  --color-border-default: #d9d9d9;
+  --color-border-strong: #bfbfbf;
+  --color-border-divider: #f0f0f0;
+  --color-border-primary: rgba(0, 0, 0, 0.35);
+  --color-border-focus: rgba(0, 0, 0, 0.5);
+
+  /* Status — semantic, kept legible on paper */
+  --color-success: #0a734f;
+  --color-success-light: rgba(10, 115, 79, 0.12);
+  --color-success-border: rgba(10, 115, 79, 0.3);
+  --color-warning: #8a5d0b;
+  --color-warning-light: rgba(138, 93, 11, 0.12);
+  --color-warning-border: rgba(138, 93, 11, 0.3);
+  --color-error: #b3261e;
+  --color-error-light: rgba(179, 38, 30, 0.1);
+  --color-error-border: rgba(179, 38, 30, 0.3);
+  --color-info: #000000;
+  --color-info-light: rgba(0, 0, 0, 0.06);
+  --color-info-border: rgba(0, 0, 0, 0.2);
+
+  --color-modal-backdrop: rgba(0, 0, 0, 0.38);
+
+  --color-focus-ring: rgba(0, 0, 0, 0.6);
+  --color-eyebrow: #000000;  /* black micro-labels */
+
+  /* Data viz — monochrome ramp */
+  --color-data-1: #000000;
+  --color-data-2: #555555;
+  --color-data-3: #888888;
+  --color-data-4: #ababab;
+  --color-data-5: #262626;
+  --color-data-6: #6e6e6e;
+  --color-data-7: #9e9e9e;
+  --color-data-8: #bdbdbd;
+
+  /* Log streams — black/gray */
+  --color-log-stdout: #1f1f1f;
+  --color-log-stderr: #000000;
+  --color-log-info: #111111;
+  --color-log-warn: #444444;
+
+  /* Shadows — soft grays */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.07), 0 4px 14px rgba(0, 0, 0, 0.07);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.1), 0 20px 48px rgba(0, 0, 0, 0.12);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.14), 0 28px 64px rgba(0, 0, 0, 0.16);
+  --shadow-glow: var(--shadow-md);
+  --shadow-sidebar: 1px 0 0 #ececec;
+
+  --shadow-inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  --shadow-inset-hi:  inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration-normal: 180ms;
+  --duration-slow: 260ms;
+  --ease-default: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring:  cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-reveal: 420ms;
+  --ease-reveal: cubic-bezier(0.16, 1, 0.3, 1);  /* ease-out-expo-ish */
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  --space-section: clamp(2rem, 1.2rem + 3vw, 3.5rem);
+
+  /* Radii — sharp, editorial */
+  --radius-sm: 3px;
+  --radius-md: 5px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-full: 9999px;
+
+  /* Typography — Geist Variable + Geist Mono Variable */
+  --font-sans: "Geist", "Geist Variable", -apple-system, BlinkMacSystemFont, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Geist Mono", "Geist Mono Variable", ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+
+  --text-xs: 0.6875rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.875rem;
+  --text-lg: 1rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.625rem;
+  --text-3xl: 2rem;
+  --text-4xl: 2.5rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.4;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+
+  --sidebar-width: 200px;
+  --sidebar-width-collapsed: 52px;
+  --color-toggle-off: #bdbdbd;
+  --color-toggle-on: var(--color-primary);
+
+  /* Page-width archetypes — applied via .page / .page--narrow /
+     .page--medium / .page--wide. Default is wide-enough for ops/data
+     tables; medium suits two-column app pages (sticky nav + form);
+     narrow caps reading width. */
+  --page-max-narrow: 760px;
+  --page-max-medium: 1080px;
+  --page-max-default: 1600px;
+  --page-max-wide: none;
+
+  /* Responsive breakpoints — kept here so JS can read them via getComputedStyle. */
+  --bp-mobile: 640px;
+  --bp-tablet: 1024px;
+}
+
+/* "light" explicitly mirrors :root so the attribute selector always resolves:
+   the default (no attribute) and the explicit choice render identically. */
+[data-theme="light"] {
+  color-scheme: light;
+}
+
+/* The dark theme inverts the monochrome brand: black ground, light text,
+   white accents with black labels. Everything stays variable-driven so a
+   component written against the tokens needs no dark-mode copy. */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Surfaces — black ground */
+  --color-bg-primary: #0c0c0c;          /* page */
+  --color-bg-secondary: #161616;        /* sidebar, headers, cards */
+  --color-bg-tertiary: #1e1e1e;         /* wells / sunken rows */
+  --color-bg-overlay: rgba(12, 12, 12, 0.92);
+  --color-bg-hover: #1e1e1e;
+
+  --color-surface-raised: #1c1c1c;
+  --color-surface-sunken: #141414;
+  --color-surface-hover: #242424;
+  --color-surface-elevated: #2a2a2a;
+
+  /* Primary — inverted to white. Black label text. */
+  --color-primary: #ffffff;
+  --color-primary-hover: #e6e6e6;
+  --color-primary-active: #cccccc;
+  --color-primary-text: #0b0b0b;
+  --color-primary-light: rgba(255, 255, 255, 0.08);
+  --color-primary-border: rgba(255, 255, 255, 0.25);
+
+  --color-secondary: #d9d9d9;
+  --color-secondary-hover: #ffffff;
+  --color-secondary-light: rgba(255, 255, 255, 0.1);
+
+  /* Accent alias — white is the brand accent in dark mode */
+  --color-accent: #ffffff;
+  --color-accent-hover: #e6e6e6;
+  --color-accent-light: rgba(255, 255, 255, 0.08);
+  --color-accent-border: rgba(255, 255, 255, 0.2);
+  --color-on-accent: #0b0b0b;           /* label text on accent surfaces */
+
+  /* Text — light scale */
+  --color-text-primary: #f2f2f2;
+  --color-text-secondary: #d9d9d9;
+  --color-text-muted: #a6a6a6;
+  --color-text-tertiary: #6b6b6b;       /* dimmer than muted, metadata */
+  --color-text-disabled: #555555;
+  --color-text-inverse: #0b0b0b;
+
+  /* Borders — dark hairlines */
+  --color-border-subtle: #1f1f1f;
+  --color-border-default: #2e2e2e;
+  --color-border-strong: #444444;
+  --color-border-divider: #1a1a1a;
+  --color-border-primary: rgba(255, 255, 255, 0.35);
+  --color-border-focus: rgba(255, 255, 255, 0.5);
+
+  /* Status — semantic, lightened for black ground */
+  --color-success: #4cd08a;
+  --color-success-light: rgba(76, 208, 138, 0.13);
+  --color-success-border: rgba(76, 208, 138, 0.32);
+  --color-warning: #e8b64c;
+  --color-warning-light: rgba(232, 182, 76, 0.13);
+  --color-warning-border: rgba(232, 182, 76, 0.32);
+  --color-error: #ff6b63;
+  --color-error-light: rgba(255, 107, 99, 0.12);
+  --color-error-border: rgba(255, 107, 99, 0.32);
+  --color-info: #ffffff;
+  --color-info-light: rgba(255, 255, 255, 0.08);
+  --color-info-border: rgba(255, 255, 255, 0.2);
+
+  --color-modal-backdrop: rgba(0, 0, 0, 0.66);
+
+  --color-focus-ring: rgba(255, 255, 255, 0.6);
+  --color-eyebrow: #ffffff;             /* white micro-labels */
+
+  /* Data viz — light ramp */
+  --color-data-1: #ffffff;
+  --color-data-2: #b9b9b9;
+  --color-data-3: #7a7a7a;
+  --color-data-4: #565656;
+  --color-data-5: #d6d6d6;
+  --color-data-6: #9a9a9a;
+  --color-data-7: #6b6b6b;
+  --color-data-8: #4d4d4d;
+
+  /* Log streams — white/gray */
+  --color-log-stdout: #d9d9d9;
+  --color-log-stderr: #ffffff;
+  --color-log-info: #e6e6e6;
+  --color-log-warn: #a6a6a6;
+
+  /* Shadows — deeper so elevation reads on black */
+  --shadow-subtle: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45), 0 4px 14px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.5), 0 20px 48px rgba(0, 0, 0, 0.55);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.55), 0 28px 64px rgba(0, 0, 0, 0.6);
+  --shadow-glow: var(--shadow-md);
+  --shadow-sidebar: 1px 0 0 #1f1f1f;
+
+  --shadow-inset-top: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --shadow-inset-hi:  inset 0 1px 0 rgba(255, 255, 255, 0.08);
+
+  --color-toggle-off: #3a3a3a;
+  --color-toggle-on: var(--color-primary);
+
+  /* Page widths, breakpoints, motion, radii, type scale and spacing are
+     theme-independent — they live in :root and are inherited here. */
+}

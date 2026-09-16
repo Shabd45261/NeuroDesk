@@ -1,0 +1,58 @@
+{
+  "name": "neurodesk-app",
+  "version": "1.0.3",
+  "description": "NeuroDesk desktop app (exact copy of the NeuroDesk web UI)",
+  "main": "main.js",
+  "author": "NeuroDesk",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^37.10.3",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.neurodesk.app",
+    "productName": "NeuroDesk",
+    "artifactName": "NeuroDeskSetup-${version}.${ext}",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "updater.js",
+      "package.json",
+      "assets/icon.ico"
+    ],
+    "extraResources": [
+      {
+        "from": "D:\\NeuroDesk\\NeuroDesk\\neurodesk-linux-amd64",
+        "to": "neurodesk-linux"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "NeuroDesk"
+    }
+  },
+  "allowScripts": {
+    "electron@37.10.3": true,
+    "electron-winstaller@5.4.0": true
+  }
+}
